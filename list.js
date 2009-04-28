@@ -8,36 +8,44 @@ function List(firstValue){
     function insertBeginning(newValue){
         var tmp = _first;
         _first = new Node(newValue);
-        _first.next = tmp;
+        _first.setNext(tmp);
         tmp = null;
     }
 
     function insertAfter(node, newValue){
-        var tmp = node.next;
-        node.next = new Node(newValue);
-        node.next.next = tmp;
-        tmp = null;
+        var tmp = node.getNext(),
+            newNode = new Node(newValue);
+        node.setNext(newNode);
+        newNode.setNext(tmp);
+        tmp = newNode = null;
     }
 
     function clearList(){
-        var tmp;
-        while(tmp = _getLastNode()){
-            delete node.next;
+        var toDel = _first,
+            tmp;
+        while(tmp = toDel.getNext()){
+            toDel.delNext();
+            toDel = tmp;
         }
+        _first = null;
     }
 
     function _getLastNode(){
-        var node;
-        while(node = node.next);
+        var node = _first;
+        while(typeof node.getNext() != 'undefined')
+            node = node.getNext();
         return node;
     }
 
     function getListArray(){
-        var arr = [_first.get()],
+        if(!_first)
+            return [];
+
+        var arr = [_first.getVal()],
             tmpNode = _first;
 
-        while(tmpNode = tmpNode.next){
-            arr.push(tmpNode.get());
+        while(tmpNode = tmpNode.getNext()){
+            arr.push(tmpNode.getVal());
         }
 
         return arr;
@@ -47,9 +55,9 @@ function List(firstValue){
     function getNode(val){
         var tmp = _first;
         do{
-            if(tmp.get() === val)
+            if(tmp && tmp.getVal() === val)
                 return tmp;
-        }while(tmp = tmp.next);
+        }while(tmp = tmp.getNext());
         return null;
     }
 
@@ -70,11 +78,11 @@ function List(firstValue){
 
 function Node(val){
     if(typeof val == 'undefined'){
-        throw new Exception('EmptyNode', 'Cannot construct a node with an undefined value.');
+        throw new Exception('EmptyNode', 'Cannot construct a node with an undefined value');
         return;
     }
     var _val = val,
-        next;
+        _next;
 
     function get(){
         return _val;
@@ -86,18 +94,27 @@ function Node(val){
     }
 
     function getNext(){
-        return next;
+        return _next;
     }
 
     function setNext(node){
-        next = node;
+        if(typeof node.typeOf == 'function' && node.typeOf() == 'node')
+            _next = node;
+        else
+            throw new Exception('TypeError', 'The parameter must be of type `Node`')
+    }
+
+    function delNext(){
+        _next = null;
     }
 
     return {
         'setVal': set,
         'getVal': get,
         'getNext': getNext,
-        'setNext': setNext
+        'setNext': setNext,
+        'delNext': delNext,
+        'typeOf': function(){ return 'node'; }
     };
 }
 

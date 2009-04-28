@@ -17,6 +17,8 @@
                 var l = new List('foo');
                 l.insert('bar');
                 console.log(l.getListArray(), l.getNode('foo'));
+                l.clear();
+                console.log(l.getListArray());
             })();
         </script>
     </head>
