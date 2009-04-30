@@ -6,9 +6,9 @@ function List(firstValue){
     }
 
     function insertBeginning(newValue){
-        var tmp = _first;
+        var tmp = _first, empty = isEmpty();
         _first = new Node(newValue);
-        _first.setNext(tmp);
+        if(!empty) _first.setNext(tmp);
         tmp = null;
     }
 
@@ -21,13 +21,15 @@ function List(firstValue){
     }
 
     function clearList(){
-        var toDel = _first,
-            tmp;
-        while(tmp = toDel.getNext()){
-            toDel.delNext();
-            toDel = tmp;
+        if(!isEmpty()){
+            var toDel = _first,
+                tmp;
+            while(tmp = toDel.getNext()){
+                toDel.delNext();
+                toDel = tmp;
+            }
+            _first = null;
         }
-        _first = null;
     }
 
     function _getLastNode(){
@@ -37,7 +39,7 @@ function List(firstValue){
         return node;
     }
 
-    function getListArray(){
+    function getValuesArray(){
         if(!_first)
             return [];
 
@@ -53,17 +55,60 @@ function List(firstValue){
     }
 
     function getNode(val){
-        var tmp = _first;
+        var node = _first;
         do{
-            if(tmp && tmp.getVal() === val)
-                return tmp;
-        }while(tmp = tmp.getNext());
+            if(node && node.getVal() === val)
+                return node;
+        }while(node = node.getNext());
         return null;
+    }
+
+    function _getNodeBefore(val){
+        var thisNode = _first,
+            nextNode;
+        do{
+            if(thisNode){
+                nextNode = thisNode.getNext();
+                if(nextNode && nextNode.getVal() === val)
+                    return thisNode;
+
+            }
+        }while(thisNode = nextNode);
+        return null;
+    }
+
+    function removeNode(val){
+        var nodeBefore,
+            toDel;
+
+        if(_first.getVal() === val){
+            toDel = _first;
+            _first = toDel.getNext();
+            toDel.delNext();
+            return toDel;
+        }else if(nodeBefore = _getNodeBefore(val)){
+            toDel = nodeBefore.getNext();
+            if(toDel.getNext()){
+                nodeBefore.setNext(toDel.getNext());
+            }else{
+                nodeBefore.delNext();
+            }
+            toDel.delNext();
+            return toDel;
+        }
+        return false;
+    }
+
+    function isEmpty(){
+        return !_first;
     }
 
     return {
         'insert': function(){
-            if(arguments.length == 2){
+            if(arguments.length === 0){
+                throw new Exception('TypeError', 'Node value can\'t be undefined');
+            }
+            else if(arguments.length === 2){
                 insertAfter(arguments[0], arguments[1]);
             }
             else{
@@ -71,8 +116,10 @@ function List(firstValue){
             }
         },
         'clear': clearList,
-        'getListArray': getListArray,
-        'getNode': getNode
+        'getValuesArray': getValuesArray,
+        'getNode': getNode,
+        'removeNode': removeNode,
+        'isEmpty': isEmpty
     };
 }
 
@@ -98,7 +145,7 @@ function Node(val){
     }
 
     function setNext(node){
-        if(typeof node.typeOf == 'function' && node.typeOf() == 'node')
+        if(node && typeof node.typeOf == 'function' && node.typeOf() == 'node')
             _next = node;
         else
             throw new Exception('TypeError', 'The parameter must be of type `Node`')
