@@ -136,7 +136,15 @@
                     cmdForm = document.forms.commands;
                     formEl = cmdForm.elements;
 
-                    cmdForm.onsubmit = function(){return false;};
+                    cmdForm.onsubmit = function(e){
+                        e = e || window.event;
+                        if(typeof e.preventDefault == 'function')
+                            e.preventDefault();
+                        else
+                            e.returnValue = false;
+
+                        API.insertVal(this.elements.lValue.value);
+                    };
 
                     formEl.lCreateDelete.onclick = function(){
                         if(this.value == 'c'){
@@ -150,10 +158,6 @@
                         }
                     };
 
-                    formEl.lInsert.onclick = function(){
-                        API.insertVal(this.form.elements.lValue.value);
-                    }
-
                     formEl.lRemove.onclick = function(){
                         API.removeVal(this.form.elements.lValue.value);
                     }
@@ -166,13 +170,17 @@
     <body>
         <form name='commands'>
             <p>
-                <button name='lCreateDelete' value='c'>Criar lista</button>
+                <button name='lCreateDelete' value='c' type='button'>Criar lista</button>
             </p>
             <p>
                 <input type="text" name="lValue">
-                <button name='lInsert' value='i'>Inserir valor</button>
+                <button name='lInsert' value='i' type='submit'>Inserir valor</button>
                 <button name='lRemove' value='r'>Remover valor</button>
             </p>
+        </form>
+        <form name='ulScript' action='process.php' method='post' enctype='multipart/form-data'>
+            <input type='file' name='scriptFile'>
+            <input type='submit' value='Vai!'>
         </form>
         <div id="list">
         </div>
