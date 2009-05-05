@@ -2,22 +2,36 @@
     if(!empty($_FILES['scriptFile'])){
         $statements = array(
             'create' => 'createList',
+            'destroy' => 'delList',
             'add' => 'insertVal',
+            'after' => 'insertValAfter',
             'del' => 'remVal'
         );
         $processed = array();
         $commands = explode(';', file_get_contents($_FILES['scriptFile']['tmp_name']));
-        $test = array();
-        //preg_match('%(?P<string_value>(?<=\'|")[\w\d\s]+(?=\'|"))%', '\'sadsd\'', $test);
-        /*preg_match($regex = '%\s*(?P<sstring_value>(?<=\'|")[\w\d\s]+(?=\'|"))\s*%im',
-            '"sou"', $test);*/
-        preg_match('%\w+\s*(?<=(?P<d>[\'"]))[\w\s]+(?=(?P=d))%m', 'add "sou uma string com espacos"', $test);
-        var_dump('test:', $test);
-        $regex = '%(?P<statement>create|add|del)\s+((?P<int_value>[\d]+)|(?P<string_value>(?<![\'"])[\w]+)|(?P<sstring_value>(?<=(?P<d>[\'"]))[\w\d\s]+(?=(?P=d))))(\s+after\s+(?P<add_after>[\d\w]+|([\'"][^\'"][\'"])))?%im';
-        var_dump($regex);
+
+        $regex = '%(?P<statement>add|del)\s+[\'"]?(?P<value>(?P<int_value>[\d]+)|(?P<string_value>(?<![\'"])[\w]+)|(?P<qstring_value>(?<=(?P<quotes>[\'"]))[\w\d\s]+(?=(?P=quotes))))(\s+after\s+(?P<add_after>([\d]+)|((?<![\'"])[\w]+)|((?<=(?P<aquotes>[\'"]))[\w\d\s]+(?=(?P=aquotes)))))?%im';
         foreach($commands as $command){
-            preg_match($regex, $command, $match);
-            var_dump($command, $match);
+            if(strpos($command, 'create') !== false){
+                $processed[] = array($statements['create']);
+            }
+            elseif(strpos($command, 'destroy') !== false){
+                $processed[] = array($statements['destroy']);
+            }
+            else{
+                preg_match($regex, $command, $match);
+                $statement = $match['statement'];
+                $value = $match['value'];
+                $addAfter = $match['add_after'];
+                if(!empty($statement) && !empty($value)){
+                    $vals = array($value);
+                    if(!empty($addAfter)){
+                        $vals[] = $addAfter;
+                    }
+                    $processed[] = array($statements[$statement], $vals);
+                }
+            }
         }
+        echo json_encode($processed);
     }
 ?>

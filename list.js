@@ -108,7 +108,7 @@ function List(firstValue){
             if(arguments.length === 0){
                 throw new Exception('TypeError', 'Node value can\'t be undefined');
             }
-            else if(arguments.length === 2){
+            else if(arguments.length === 2 && arguments[1]){
                 insertAfter(arguments[0], arguments[1]);
             }
             else{

@@ -79,10 +79,10 @@
                     _show(msgDiv);
                 };
 
-                API.insertVal = function insertVal(val){
+                API.insertVal = function insertVal(val, after){
                     var msgDiv = d.getElementById('msg');
                     try{
-                        l.insert(val);
+                        l.insert(val, after);
                         msgDiv.className = 'success';
                         msgDiv.innerHTML = 'Valor inserido com sucesso';
                     }catch(e){
